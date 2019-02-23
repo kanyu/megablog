@@ -1,8 +1,9 @@
-from flask import render_template, flash, redirect, url_for
-from flask_login import current_user, login_user, logout_user
+from flask import render_template, flash, redirect, url_for, request
+from flask_login import current_user, login_user, logout_user, login_required
+from werkzeug.urls import url_parse
 from app.models import User
-from app import myApp
 from app.forms import LoginForm
+from app import myApp
 
 print("==================BLOG START=====================")
 import config
@@ -11,8 +12,11 @@ print(config.basedir)
 print(os.environ.get('DATABASE_URL'))
 print(os.path.join(config.basedir, 'app\\app.db'))
 print("=================================================")
-@myApp.route('/')
+
+
+@myApp.route('/')  # this route alway first
 @myApp.route('/index')
+@login_required  # this decorator to protect page which need login
 def index():
     user = {'username': 'Kan'}
     posts = [
@@ -43,8 +47,12 @@ def login():
             return redirect(url_for('login'))
         # if not wrong and exist log user in
         login_user(user, remember=form.remember_me.data)
+        # create request to redirect
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
         # redirect to page where user come from
-        return redirect(url_for('index'))
+        return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
 @myApp.route('/logout')
