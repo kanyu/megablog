@@ -8,10 +8,13 @@ from app import myApp, db
 
 print("==================BLOG START=====================")
 import config
+from config import Config
 import os
-print(config.basedir)
-print(os.environ.get('DATABASE_URL'))
-print(os.path.join(config.basedir, 'app\\app.db'))
+print("mail server: ", Config.MAIL_SERVER)
+print("mail port: ", Config.MAIL_PORT)
+print("basedir :", config.basedir)
+print("database URL: ", os.environ.get('DATABASE_URL'))
+print("database file: ", os.path.join(config.basedir, 'app\\app.db'))
 print("=================================================")
 
 # 'before_request' This decorator from Flask register the decorated function
