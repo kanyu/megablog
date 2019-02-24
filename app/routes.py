@@ -3,7 +3,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from datetime import datetime
 from werkzeug.urls import url_parse
 from app.models import User
-from app.forms import LoginForm, RegistrationForm
+from app.forms import LoginForm, RegistrationForm, EditProfileForm
 from app import myApp, db
 
 print("==================BLOG START=====================")
@@ -13,6 +13,9 @@ print(config.basedir)
 print(os.environ.get('DATABASE_URL'))
 print(os.path.join(config.basedir, 'app\\app.db'))
 print("=================================================")
+
+# 'before_request' This decorator from Flask register the decorated function
+# to be executed right before every view functions
 
 
 @myApp.before_request
@@ -93,3 +96,19 @@ def user(username):
         {'author': user, 'body': 'Test post #2'},
     ]
     return render_template('user.html', user=user, posts=posts)
+
+
+@myApp.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()  # create form instance from class in forms.py
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('edit_profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', title='Edit Profile', form=form)
