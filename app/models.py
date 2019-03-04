@@ -58,11 +58,11 @@ class User(UserMixin, db.Model):
         #         Post.timestamp.desc()
         #         )
         # )
-        
+
         # return followed user posts
         followed = Post.query.join(
-            followers, (followers.c.followed_id == Post.user_id).filter(
-                followers.c.follower_id == self.id))
+            followers, (followers.c.followed_id == Post.user_id)).filter(
+                followers.c.follower_id == self.id)
         # union followed user posts and self posts
         return followed.union(self.posts).order_by(Post.timestamp.desc())
 
