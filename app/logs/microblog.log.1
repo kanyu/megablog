@@ -1,4 +1,4 @@
-2019-03-05 16:10:30,453 ERROR: Exception on / [GET] [in j:\flaskdev\megablog\venv\lib\site-packages\flask\app.py:1761]
+2019-03-05 16:10:25,234 ERROR: Exception on /index [GET] [in j:\flaskdev\megablog\venv\lib\site-packages\flask\app.py:1761]
 Traceback (most recent call last):
   File "j:\flaskdev\megablog\venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
     response = self.full_dispatch_request()
@@ -107,24 +107,3 @@ Traceback (most recent call last):
   File "j:\flaskdev\megablog\venv\lib\site-packages\jinja2\lexer.py", line 690, in tokeniter
     filename)
 jinja2.exceptions.TemplateSyntaxError: unexpected '}', expected ')'
-2019-03-05 16:11:05,912 INFO: Microblog startup [in J:\FlaskDev\megablog\app\__init__.py:42]
-2019-03-05 16:11:42,070 ERROR: Exception on /index [POST] [in j:\flaskdev\megablog\venv\lib\site-packages\flask\app.py:1761]
-Traceback (most recent call last):
-  File "j:\flaskdev\megablog\venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
-    response = self.full_dispatch_request()
-  File "j:\flaskdev\megablog\venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "j:\flaskdev\megablog\venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "j:\flaskdev\megablog\venv\lib\site-packages\flask\_compat.py", line 35, in reraise
-    raise value
-  File "j:\flaskdev\megablog\venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "j:\flaskdev\megablog\venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "j:\flaskdev\megablog\venv\lib\site-packages\flask_login\utils.py", line 228, in decorated_view
-    return func(*args, **kwargs)
-  File "J:\FlaskDev\megablog\app\routes.py", line 37, in index
-    post = Post(body=form.post.date, author=current_user)
-AttributeError: 'TextAreaField' object has no attribute 'date'
-2019-03-05 16:12:18,394 INFO: Microblog startup [in J:\FlaskDev\megablog\app\__init__.py:42]
