@@ -2,8 +2,8 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
 from datetime import datetime
 from werkzeug.urls import url_parse
-from app.models import User
-from app.forms import LoginForm, RegistrationForm, EditProfileForm
+from app.models import User, Post
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm
 from app import myApp, db
 
 print("==================BLOG START=====================")
@@ -28,10 +28,17 @@ def before_request():
         db.session.commit()
 
 
-@myApp.route('/')  # this route always first
-@myApp.route('/index')
+@myApp.route('/', methods=['GET', 'POST'])  # this route always first
+@myApp.route('/index', methods=['GET', 'POST'])
 @login_required  # this decorator to protect page which need login
 def index():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(body=form.post.date, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your post is now live!')
+        return redirect(url_for('index'))
     posts = [
         {
             'author': {'username': 'Thor'},
@@ -42,8 +49,7 @@ def index():
             'body': 'The Alita movie was so cool!'
         }
     ]
-    return render_template('index.html', title='Home', posts=posts)
-
+    return render_template('index.html', title='Home', form=form, posts=posts)
 
 @myApp.route('/login', methods=['GET', 'POST'])
 def login():
