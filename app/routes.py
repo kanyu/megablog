@@ -15,6 +15,7 @@ print("mail port: ", Config.MAIL_PORT)
 print("basedir :", config.basedir)
 print("database URL: ", os.environ.get('DATABASE_URL'))
 print("database file: ", os.path.join(config.basedir, 'app\\app.db'))
+print("page config:", myApp.config['POSTS_PER_PAGE'])
 print("=================================================")
 
 # 'before_request' This decorator from Flask register the decorated function
@@ -39,17 +40,36 @@ def index():
         db.session.commit()
         flash('Your post is now live!')
         return redirect(url_for('index'))
-    posts = [
-        {
-            'author': {'username': 'Thor'},
-            'body': 'Beautiful Thailand!'
-        },
-        {
-            'author': {'username': 'Nano'},
-            'body': 'The Alita movie was so cool!'
-        }
-    ]
-    return render_template('index.html', title='Home', form=form, posts=posts)
+    page = request.args.get('page', 1, type=int)
+    posts = current_user.followed_posts().paginate(
+        page, myApp.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('index', page=posts.next_num) if posts.has_next else None
+    prev_url = url_for('index', page=posts.prev_num) if posts.has_prev else None
+    return render_template('index.html',
+                           title='Home',
+                           form=form,
+                           posts=posts.items,
+                           next_url=next_url,
+                           prev_url=prev_url
+                           )
+
+
+@myApp.route('/explore')
+@login_required
+def explore():
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.order_by(Post.timestamp.desc()).paginate(
+        page, myApp.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('index', page=posts.next_num) if posts.has_next else None
+    prev_url = url_for('index', page=posts.prev_num) if posts.has_prev else None
+    return render_template('index.html',
+                           title='Explore',
+                           posts=posts.items,
+                           form=False,
+                           next_url=next_url,
+                           prev_url=prev_url
+                           )
+
 
 @myApp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -72,7 +92,10 @@ def login():
             next_page = url_for('index')
         # redirect to page where user come from
         return redirect(next_page)
-    return render_template('login.html', title='Sign In', form=form)
+    return render_template('login.html',
+                           title='Sign In',
+                           form=form
+                           )
 
 
 @myApp.route('/logout')
@@ -93,24 +116,35 @@ def register():
         db.session.commit()
         flash('Congratulations, you are now registered user!')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+    return render_template('register.html',
+                           title='Register',
+                           form=form
+                           )
 
 
 @myApp.route('/user/<username>')
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    posts = [
-        {'author': user, 'body': 'Test post #1'},
-        {'author': user, 'body': 'Test post #2'},
-    ]
-    return render_template('user.html', user=user, posts=posts)
+    page = request.args.get('page', 1, type=int)
+    posts = user.posts.order_by(Post.timestamp.desc()).paginate(
+        page, myApp.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('user', username=user.username, page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('user', username=user.username, page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template('user.html',
+                           user=user,
+                           posts=posts.items,
+                           next_url=next_url,
+                           prev_url=prev_url
+                           )
 
 
 @myApp.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
-    form = EditProfileForm(current_user.username)  # create form instance from class in forms.py
+    form = EditProfileForm(current_user.username)  # render form from from.py
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
@@ -120,7 +154,10 @@ def edit_profile():
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html', title='Edit Profile', form=form)
+    return render_template('edit_profile.html',
+                           title='Edit Profile',
+                           form=form
+                           )
 
 
 @myApp.route('/follow/<username>')

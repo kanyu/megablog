@@ -2,4 +2,6 @@
 venv/
 .idea/
 __pycache__/
+logs/
+app/logs/
 temp.py
